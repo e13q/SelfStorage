@@ -17,8 +17,9 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ("question", "answer")
-    search_fields = ("question",)
+    list_display = ('question', 'category')
+    search_fields = ('question', 'answer', 'category')
+    list_filter = ('category',)
 
 
 @admin.register(Address)

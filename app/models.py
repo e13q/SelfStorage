@@ -33,6 +33,7 @@ class Client(models.Model):
 class FAQ(models.Model):
     question = models.CharField("Вопрос", max_length=200)
     answer = models.TextField("Ответ")
+    category = models.CharField("Категория", max_length=200)
 
     class Meta:
         verbose_name = "Ответ на вопрос"
