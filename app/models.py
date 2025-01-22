@@ -1,5 +1,34 @@
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
+
+
+class CustomUser(AbstractUser):
+    email = models.EmailField("Email", max_length=255, unique=True)
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
+
+
+class Client(models.Model):
+    full_name = models.CharField("ФИО", max_length=200)
+    user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
+    phone_number = PhoneNumberField("Номер телефона", region="RU", unique=True)
+
+    class Meta:
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
+
+    def __str__(self) -> str:
+        return self.full_name
+
 
 class FAQ(models.Model):
     question = models.TextField("Вопрос", max_length=200)
@@ -9,7 +38,9 @@ class FAQ(models.Model):
 class Storage(models.Model):
     address = models.TextField("Адрес", max_length=200)
     temperature = models.PositiveSmallIntegerField("Температура")
-    ceiling = models.FloatField("Высота потолка, м",)
+    ceiling = models.FloatField(
+        "Высота потолка, м",
+    )
     price = models.DecimalField(
         "Цена аренды",
         max_digits=8,
@@ -56,7 +87,7 @@ class Order(models.Model):
     ]
     status = models.CharField("Статус записи", max_length=20, choices=STATUSES)
     date = models.DateField("Дата начала аренды")
-    box = models.ForeignKey(Box, on_delete=models.CASCADE)
-    # client = models.ForeignKey(ClientUser)
+    box = models.ForeignKey(Box, on_delete=models.PROTECT)
+    client = models.ForeignKey(Client, on_delete=models.PROTECT)
     address = models.TextField("Адрес", max_length=200)
     expiration = models.DateField("Дата окончания аренды")
