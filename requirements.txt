@@ -1,3 +1,4 @@
 environs[django]==14.1.0
 django==5.0
 django-phonenumber-field[phonenumbers]==8.0.0
+pillow==11.1.0

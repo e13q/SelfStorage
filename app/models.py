@@ -31,27 +31,74 @@ class Client(models.Model):
 
 
 class FAQ(models.Model):
-    question = models.TextField("Вопрос", max_length=200)
-    answer = models.TextField("Ответ", max_length=200)
+    question = models.CharField("Вопрос", max_length=200)
+    answer = models.TextField("Ответ")
+
+    class Meta:
+        verbose_name = "Ответ на вопрос"
+        verbose_name_plural = "Ответы на вопросы"
+
+    def __str__(self):
+        return f"{self.question}"
 
 
-class Storage(models.Model):
-    address = models.TextField("Адрес", max_length=200)
+class Address(models.Model):
+    street_address = models.CharField(
+        max_length=255, verbose_name="Улица и номер дома"
+    )
+    city = models.CharField(
+        max_length=100, verbose_name="Город", db_index=True
+    )
+
+    class Meta:
+        verbose_name = "Адрес"
+        verbose_name_plural = "Адреса"
+
+    def __str__(self):
+        return f"{self.street_address}, {self.city}"
+
+
+class Warehouse(models.Model):
+    address = models.ForeignKey(
+        Address, verbose_name="Адрес", on_delete=models.PROTECT
+    )
+    advantage = models.CharField(
+        max_length=255, verbose_name="Преимущество"
+    )
     temperature = models.PositiveSmallIntegerField("Температура")
     ceiling = models.FloatField(
-        "Высота потолка, м",
+        "Предельная высота потолка, м", 
+        validators=[MinValueValidator(0)]
     )
-    price = models.DecimalField(
-        "Цена аренды",
-        max_digits=8,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
+    image = models.ImageField(
+        "Баннер склада",
+        upload_to="warehouse_images/",
+        db_index=True,
+        blank=True
     )
+    # Дублирование с Box. Нужно-ли?
+    # price = models.DecimalField(
+    #     "Цена аренды",
+    #     max_digits=8,
+    #     decimal_places=2,
+    #     validators=[MinValueValidator(0)],
+    # )
+
+    class Meta:
+        verbose_name = "Склад"
+        verbose_name_plural = "Склады"
+
+    def __str__(self):
+        return f"{self.address.city}"
 
 
 class Box(models.Model):
-    number = models.CharField("Номер", max_length=20)
-    storage = models.ForeignKey(Storage, on_delete=models.CASCADE)
+    number = models.CharField(
+        "Номер", max_length=20, unique=True
+    )
+    storage = models.ForeignKey(
+        Warehouse, on_delete=models.PROTECT, verbose_name='Склад'
+    )
     floor = models.PositiveSmallIntegerField("Этаж")
     length = models.DecimalField(
         "Длина, м",
@@ -77,17 +124,48 @@ class Box(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)],
     )
-    occupied = models.BooleanField("Занят", default=False)
+    is_occupied = models.BooleanField("Занят", default=False)
+
+    @property
+    def area(self):
+        return self.length * self.width
+
+    @property
+    def volume(self):
+        return self.length * self.width * self.height
+
+    class Meta:
+        verbose_name = "Бокс"
+        verbose_name_plural = "Боксы"
+
+    def __str__(self):
+        return f"{self.number}"
 
 
 class Order(models.Model):
     STATUSES = [
-        ("accepted", "Принят"),
-        ("ended", "Завершен"),
+        (1, "Просрочен"),
+        (2, "Принят"),
+        (3, "Завершен"),
     ]
-    status = models.CharField("Статус записи", max_length=20, choices=STATUSES)
+    status = models.IntegerField(
+        "Статус записи",
+        choices=STATUSES,
+        default=2
+    )
     date = models.DateField("Дата начала аренды")
-    box = models.ForeignKey(Box, on_delete=models.PROTECT)
-    client = models.ForeignKey(Client, on_delete=models.PROTECT)
+    box = models.ForeignKey(
+        Box, on_delete=models.PROTECT, verbose_name='Бокс'
+    )
+    client = models.ForeignKey(
+        Client, on_delete=models.PROTECT, verbose_name='Клиент'
+    )
     address = models.TextField("Адрес", max_length=200)
     expiration = models.DateField("Дата окончания аренды")
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
+    def __str__(self):
+        return f"{self.id}"
