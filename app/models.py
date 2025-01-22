@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
 class FAQ(models.Model):
@@ -19,7 +20,7 @@ class Storage(models.Model):
 
 class Box(models.Model):
     number = models.CharField("Номер", max_length=20)
-    storage = models.ForeignField(storage)
+    storage = models.ForeignKey(Storage, on_delete=models.CASCADE)
     floor = models.PositiveSmallIntegerField("Этаж")
     length = models.DecimalField(
         "Длина, м",
@@ -55,7 +56,7 @@ class Order(models.Model):
     ]
     status = models.CharField("Статус записи", max_length=20, choices=STATUSES)
     date = models.DateField("Дата начала аренды")
-    box = models.ForeignKey(Box)
-    client = models.ForeignKey(ClientUser)
+    box = models.ForeignKey(Box, on_delete=models.CASCADE)
+    # client = models.ForeignKey(ClientUser)
     address = models.TextField("Адрес", max_length=200)
     expiration = models.DateField("Дата окончания аренды")
