@@ -21,7 +21,7 @@ class Command(BaseCommand):
                     ceiling=3.5,
                     image=File(f)
                 )
-            with open("./static/img/image2.png", "rb") as f:
+            with open("./static/img/image9.png", "rb") as f:
                 warehouse_2 = Warehouse.objects.create(
                     address=Address.objects.create(
                         city='Одинцово',

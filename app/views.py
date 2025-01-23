@@ -7,13 +7,27 @@ from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count, Min, Q
+from .models import Warehouse, Box
 
 
 def index(request):
     return render(request, 'index.html')
 
+
 def boxes(request):
-    return render(request,'boxes.html')
+
+    warehouses = Warehouse.objects.annotate(
+        total_boxes=Count('box'),
+        free_boxes=Count('box', filter=Q(box__is_occupied=False)),
+        min_price_box=Min('box__price')
+    )
+
+    context = {
+        'warehouses': warehouses,
+    }
+    return render(request, 'boxes.html', context)
+
 
 def rent(request):
     return render(request,'my-rent.html')

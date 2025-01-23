@@ -160,3 +160,4 @@ cython_debug/
 .idea/
 /warehouse_images
 /app/migrations
+/media/warehouse_images
