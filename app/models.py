@@ -20,7 +20,9 @@ class CustomUser(AbstractUser):
 class Client(models.Model):
     full_name = models.CharField("ФИО", max_length=200)
     user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
-    phone_number = PhoneNumberField("Номер телефона", region="RU", unique=True)
+    phone_number = PhoneNumberField(
+        "Номер телефона", region="RU", unique=True, blank=True
+    )
 
     class Meta:
         verbose_name = "Клиент"
@@ -63,19 +65,16 @@ class Warehouse(models.Model):
     address = models.ForeignKey(
         Address, verbose_name="Адрес", on_delete=models.PROTECT
     )
-    advantage = models.CharField(
-        max_length=255, verbose_name="Преимущество"
-    )
+    advantage = models.CharField(max_length=255, verbose_name="Преимущество")
     temperature = models.PositiveSmallIntegerField("Температура")
     ceiling = models.FloatField(
-        "Предельная высота потолка, м", 
-        validators=[MinValueValidator(0)]
+        "Предельная высота потолка, м", validators=[MinValueValidator(0)]
     )
     image = models.ImageField(
         "Баннер склада",
         upload_to="warehouse_images/",
         db_index=True,
-        blank=True
+        blank=True,
     )
     # Дублирование с Box. Нужно-ли?
     # price = models.DecimalField(
@@ -94,11 +93,9 @@ class Warehouse(models.Model):
 
 
 class Box(models.Model):
-    number = models.CharField(
-        "Номер", max_length=20, unique=True
-    )
+    number = models.CharField("Номер", max_length=20, unique=True)
     storage = models.ForeignKey(
-        Warehouse, on_delete=models.PROTECT, verbose_name='Склад'
+        Warehouse, on_delete=models.PROTECT, verbose_name="Склад"
     )
     floor = models.PositiveSmallIntegerField("Этаж")
     length = models.DecimalField(
@@ -149,17 +146,11 @@ class Order(models.Model):
         (2, "Принят"),
         (3, "Завершен"),
     ]
-    status = models.IntegerField(
-        "Статус записи",
-        choices=STATUSES,
-        default=2
-    )
+    status = models.IntegerField("Статус записи", choices=STATUSES, default=2)
     date = models.DateField("Дата начала аренды")
-    box = models.ForeignKey(
-        Box, on_delete=models.PROTECT, verbose_name='Бокс'
-    )
+    box = models.ForeignKey(Box, on_delete=models.PROTECT, verbose_name="Бокс")
     client = models.ForeignKey(
-        Client, on_delete=models.PROTECT, verbose_name='Клиент'
+        Client, on_delete=models.PROTECT, verbose_name="Клиент"
     )
     address = models.TextField("Адрес", max_length=200)
     expiration = models.DateField("Дата окончания аренды")
