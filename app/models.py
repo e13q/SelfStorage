@@ -161,3 +161,13 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.id}"
+
+
+class AdvertisingLink(models.Model):
+    url = models.URLField("Ссылка")
+    short_url = models.URLField("Сокращенная ссылка", blank=True)
+    visits_number = models.IntegerField("Количество визитов", default=0)
+
+    class Meta:
+        verbose_name = "Рекламная ссылка"
+        verbose_name_plural = "Рекламные ссылки"

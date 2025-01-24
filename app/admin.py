@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order
-
+from .models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order,AdvertisingLink
+from .advertisement_short_link import shorten_link,count_clicks
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -53,3 +53,21 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ('status_display',)
 
     status_display.short_description = 'Статус'
+
+@admin.register(AdvertisingLink)
+class AdvertisingLinkAdmin(admin.ModelAdmin):
+    list_display = ('url', 'short_url', 'visits_number')
+    ordering = ['visits_number']
+    actions = ['count_clicks', 'shorten_link']
+
+    @admin.action(description='Узнать количество переходов')
+    def count_clicks(self, requests, queryset):
+        for obj in queryset:
+            obj.visits_number = count_clicks(obj.short_url)
+            obj.save()
+
+    @admin.action(description='Сократить ссылки')
+    def shorten_link(self, requests, queryset):
+        for obj in queryset:
+            obj.short_url = shorten_link(obj.url)
+            obj.save()

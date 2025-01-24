@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
-
+from environs import Env
+env = Env()
+env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -15,7 +17,7 @@ SECRET_KEY = 'django-insecure-=ubr#^&o7$3+uishz0t8yl*61(1@y9)uxp^l4@ohn*s)8rz^%l
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+VK_API_TOKEN = env.str("VK_TOKEN")
 
 # Application definition
 
