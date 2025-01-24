@@ -31,7 +31,12 @@
 					<a class="nav-link SelfStorage_black" href="#">Арендовать бокс</a>
 				</li>
 				<li class="nav-item me-5">
-					<a class="nav-link SelfStorage_green" href="#" data-bs-toggle="modal" data-bs-target="#SignModal">Войти</a>
+					{% if user.is_authenticated %}
+						<a class="SelfStorage_black" href="/profile/" style="text-decoration: none;">{{ user.email }}</a><br>
+						<a class="SelfStorage_black" href="/logout/" style="text-decoration: none;">Выйти</a>
+					{% else %}
+						<a class="nav-link SelfStorage_green" href="#" data-bs-toggle="modal" data-bs-target="#SignModal">Войти</a>
+					{% endif %}
 				</li>
 				<li class="nav-item d-flex align-items-center">
 					<div class="d-flex justify-content-center align-items-center rounded-pill SelfStorage__bg_green me-2" style="height: 36px; width: 36px;">
@@ -78,12 +83,14 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body d-flex justify-content-center align-items-center">
-				<form class="d-flex flex-column align-items-center" style="max-width: 420px">
+				<form id="loginForm" class="d-flex flex-column align-items-center" style="max-width: 420px">
+				{% csrf_token %}				
 					<h1 class="modal-title text-center fw-bold mb-3">Вход</h1>
 					<input type="email" required name="EMAIL" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="E-mail">
-					<input type="text" required name="PASSWORD" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="Пароль">
+					<input type="password" required name="PASSWORD" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="Пароль">
+					<div class="alert alert-danger" role="alert"></div>
 					<a href="#" class="SelfStorage_orange" data-bs-toggle="modal" data-bs-target="#ForgetModal" data-bs-dismiss="modal" aria-label="Close">Забыли пароль?</a>
-					<button class="btn border-8 py-3 px-5 mt-5 mb-3 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange">Войти</button>
+					<button type="submit" class="btn border-8 py-3 px-5 mt-5 mb-3 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange">Войти</button>
 					<span>Нет аккаунта?  <a href="#" class="SelfStorage_orange" data-bs-toggle="modal" data-bs-target="#RegModal" data-bs-dismiss="modal" aria-label="Close">Зарегистрируйтесь на сайте</a></span>
 				</form>
 			</div>
@@ -97,10 +104,12 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body d-flex justify-content-center align-items-center">
-				<form class="d-flex flex-column align-items-center" style="max-width: 420px">
+				<form id="forgetForm" class="d-flex flex-column align-items-center" style="max-width: 420px">
+				{% csrf_token %}
 					<h1 class="modal-title text-center fw-bold mb-3">Восстановление пароля</h1>
 					<input type="email" required name="EMAIL_FORGET" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="E-mail">
-					<button class="btn border-8 py-3 px-5 mt-5 mb-3 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange">Восстановить</button>
+					<div class="alert alert-danger" role="alert"></div>
+					<button type="submit" class="btn border-8 py-3 px-5 mt-5 mb-3 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange">Восстановить</button>
 					<span>Вспомнили пароль?  <a href="#" class="SelfStorage_orange" data-bs-toggle="modal" data-bs-target="#SignModal" data-bs-dismiss="modal" aria-label="Close">Отмена</a></span>
 				</form>
 			</div>

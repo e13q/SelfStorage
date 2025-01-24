@@ -2,13 +2,12 @@ import phonenumbers as ph
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, logout
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count, Min, Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count, Min, Q
-from .models import Warehouse, Box
+from django.db.utils import IntegrityError
+from .models import Box, Warehouse
 
 
 def index(request):
@@ -30,7 +29,7 @@ def boxes(request):
 
 
 def rent(request):
-    return render(request,'my-rent.html')
+    return render(request, 'my-rent.html')
 
 
 def normalise_phone_number(pn):
@@ -45,83 +44,48 @@ def normalise_phone_number(pn):
 
 class UserRegistrationView(View):
     def get(self, request):
-        return redirect("index")
+        return redirect("app:index")
 
     def post(self, request):
         email = request.POST.get("EMAIL_CREATE")
         password = request.POST.get("PASSWORD_CREATE")
 
         User = get_user_model()
-        user = User.objects.create(
-            email=email, username=email, password=password
-        )
-        user.save()
+        try:
+            user = User.objects.create(
+                email=email, username=email, password=password
+            )
+            user.save()
+        except IntegrityError:
+            return JsonResponse({"success": False, "error_message": "Пользователь с таким email уже зарегистрирован"})
         login(request, user)
 
-        return redirect(request.META.get("HTTP_ORIGIN", "/"))
+        return JsonResponse({"success": True})
 
 
 class UserLoginView(View):
     def get(self, request):
-        if not request.session.get("next_url"):
-            request.session["next_url"] = request.META.get("HTTP_REFERER", "/")
-        return render(request, "login.html", {"otp_verify": False})
+        return redirect("app:index")
 
     def post(self, request):
-        if "otp" in request.POST:
-            submitted_otp = request.POST.get("otp")
-            saved_otp = request.session.get("otp")
+        email = request.POST.get("EMAIL")
+        password = request.POST.get("PASSWORD")
 
-            if submitted_otp == saved_otp:
-                phone_number = request.session["phone_number"]
-                User = get_user_model()
-                user = User.objects.get(phone_number=phone_number)
-                next_url = request.session["next_url"]
-                login(request, user)
-                return redirect(next_url)
-            else:
-                messages.error(
-                    request, "Неверный код подтверждения. Попробуйте еще раз"
-                )
-                return render(request, "login.html", {"otp_verify": False})
+        User = get_user_model()
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse({"success": False, "error_message": "Пользователь с таким email не зарегистрирован"})
+
+        if user.password == password:
+            login(request, user)
         else:
-            try:
-                phone_number = normalise_phone_number(
-                    request.POST["phone_number"]
-                )
-            except ph.phonenumberutil.NumberParseException:
-                messages.error(request, "Введен неверный телефонный номер")
-                return render(request, "login.html", {"otp_verify": False})
-            User = get_user_model()
-            try:
-                user = User.objects.get(phone_number=phone_number)
-            except ObjectDoesNotExist:
-                messages.error(request, "Пользователь не найден")
-                return render(request, "login.html", {"otp_verify": False})
-            otp = generate_otp()
-            # send_sms_otp(phone_number, otp)
+            return JsonResponse({"success": False, "error_message": "Пароль указан неверно"})
 
-            request.session["otp"] = otp
-            request.session["phone_number"] = phone_number
-
-            return render(
-                request,
-                "login.html",
-                {"otp_verify": True, "otp": otp, "phone_number": phone_number},
-            )
+        return JsonResponse({"success": True})
 
 
 class UserLogoutView(View):
     def get(self, request):
         logout(request)
-        return redirect("index")
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class TestDivView(View):
-    def get(self, request):
-        pass
-
-    def post(self, request):
-        new_data = int(request.POST["div_data"]) + 2
-        return JsonResponse({"new_data": new_data})
+        return redirect("app:index")

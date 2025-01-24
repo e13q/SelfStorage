@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    // Registration
     $("#registerForm").submit(function (e) {
         e.preventDefault();
         var form_data = $(this).serialize();
@@ -6,20 +7,32 @@ $(document).ready(function () {
         var repass = $("input[name=PASSWORD_CONFIRM]").val();
         if ( pass != repass) {
             $(".alert.alert-danger").show().text("Пароли не совпадают");
-            $(this).stop();
+            return false;
         }
-        $.ajax({
-            type: "POST",
-            url: "/register/",
-            data: form_data,
-            success: function (response) {
-                if (!response.status) {
-                    $(".alert.alert-danger").show().text(response.error_message);
-                }
-            },
-            error: function (xhr, status, error) { console.log(error); }
-        });
+
+        $.post("/register/", form_data, function (response) {
+            if (response.success) { window.location.reload(); }
+            else {
+                $(".alert.alert-danger").show().text(response.error_message);
+            }
+        })
+        .fail(function (xhr, status, error) { console.log(error); });
     });
 
+    // Login
+    $("#loginForm").submit(function (e) {
+        e.preventDefault();
+        var form_data = $(this).serialize();
+
+        $.post("/login/", form_data, function (response) {
+            if (response.success) { window.location.reload(); }
+            else {
+                $(".alert.alert-danger").show().text(response.error_message);
+            }
+        })
+        .fail(function (xhr, status, error) { console.log(error); });
+    });
+
+    // Dinamic year in footer copyrights
     $('#curr_year').text((new Date).getFullYear());
 });
