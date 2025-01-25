@@ -116,14 +116,14 @@ class UserProfileView(View):
         if user.email != email:
             user.email = email
             user.username = email
+            user.save()
 
         if not user.check_password(password):
             user.set_password(password)
-
-        user.save()
+            user.save()
 
         if client.phone_number != phone:
-            client.phone_number = phone
+            client.phone_number = phone_number
             client.save()
 
         return JsonResponse({"success": True})

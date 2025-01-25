@@ -40,7 +40,6 @@ $(document).ready(function () {
         $("#EMAIL").prop("disabled", false);
         $("#PHONE").prop("disabled", false);
         $("#PASSWORD").prop("disabled", false);
-        $("#PASSWORD").prop("type", "text");
         $("#PASSWORD").prop("value", "");
         $("#acc_page_edit").hide();
         $("#acc_page_save").show();

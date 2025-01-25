@@ -20,9 +20,7 @@ class CustomUser(AbstractUser):
 class Client(models.Model):
     full_name = models.CharField("ФИО", max_length=200)
     user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
-    phone_number = PhoneNumberField(
-        "Номер телефона", region="RU", blank=True
-    )
+    phone_number = PhoneNumberField("Номер телефона", region="RU", blank=True)
 
     class Meta:
         verbose_name = "Клиент"
@@ -142,17 +140,19 @@ class Box(models.Model):
 
 class Order(models.Model):
     STATUSES = [
-        (1, "Просрочен"),
-        (2, "Принят"),
+        (1, "Текущий"),
+        (2, "Просрочен"),
         (3, "Завершен"),
     ]
-    status = models.IntegerField("Статус записи", choices=STATUSES, default=2)
+    status = models.IntegerField("Статус аренды", choices=STATUSES, default=2)
     date = models.DateField("Дата начала аренды")
     box = models.ForeignKey(Box, on_delete=models.PROTECT, verbose_name="Бокс")
     client = models.ForeignKey(
         Client, on_delete=models.PROTECT, verbose_name="Клиент"
     )
-    address = models.TextField("Адрес", max_length=200)
+    address = models.TextField(
+        "Адрес вывоза", max_length=200, null=True, blank=True
+    )
     expiration = models.DateField("Дата окончания аренды")
 
     class Meta:
