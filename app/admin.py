@@ -1,6 +1,10 @@
 from django.contrib import admin
-from .models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order,AdvertisingLink
+from django.utils.html import format_html
+from adminsortable2.admin import SortableAdminBase, SortableInlineAdminMixin
+
+from .models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order,AdvertisingLink, WarehouseImage
 from .advertisement_short_link import shorten_link,count_clicks
+
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -28,11 +32,29 @@ class AddressAdmin(admin.ModelAdmin):
     search_fields = ("street_address", "city")
 
 
+class WarehouseImageInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = WarehouseImage
+    extra = 0
+    readonly_fields = ['image_preview', ]
+    fields = ['image', 'image_preview',]
+
+    def image_preview(self, obj):
+        return format_html(
+            '<img src="{url}" style="max-width: 255px; max-height: 200px;" />',
+            url=obj.image.url
+        )
+
 @admin.register(Warehouse)
-class WarehouseAdmin(admin.ModelAdmin):
+class WarehouseAdmin(SortableAdminBase, admin.ModelAdmin):
     list_display = ("address", "advantage", "temperature", "ceiling")
     search_fields = ("address__street_address", "advantage")
+    inlines = [WarehouseImageInline,]
 
+
+@admin.register(WarehouseImage)
+class WarehouseImageAdmin(admin.ModelAdmin):
+    raw_id_fields = ('warehouse',)
+    readonly_fields = ['image_preview']
 
 @admin.register(Box)
 class BoxAdmin(admin.ModelAdmin):

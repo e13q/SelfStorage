@@ -10,6 +10,75 @@ $(document).ready(function () {
         }
     }
 
+    const selectedBoxField = document.querySelector('select[name="selected_box"]');
+    document.querySelectorAll('.select-box-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const boxId = this.dataset.id;
+            if (selectedBoxField) {
+                selectedBoxField.value = boxId;
+            }
+            document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+    // Boxes     
+    document.querySelectorAll('.SelfStorage__warehouselink').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const warehouseId = this.getAttribute('data-bs-target').split('-')[1];
+            fetch(`/filter-boxes/${warehouseId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('#pills-all').innerHTML = data.boxes_html;
+                    document.querySelector('#pills-to3').innerHTML = data.boxes_to3_html;
+                    document.querySelector('#pills-to10').innerHTML = data.boxes_to10_html;
+                    document.querySelector('#pills-from10').innerHTML = data.boxes_from10_html;
+                    document.querySelectorAll('.select-box-btn').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const boxId = this.dataset.id;
+                            if (selectedBoxField) {
+                                selectedBoxField.value = boxId;
+                            }
+                            document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
+                        });
+                    });
+                });
+            
+        });
+    });
+    
+    
+
+    // Order making
+    $("#orderForm").on("submit", function (e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action");
+        let formData = form.serialize();
+        form.find(".errorlist").remove();
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    form[0].reset();
+                } else {
+                    for (let field in response.errors) {
+                        let input = $("[name=" + field + "]", form);
+                        let errors = response.errors[field];
+                        let errorList = $("<ul>").addClass("errorlist");
+                        errors.forEach(error => errorList.append($("<li>").text(error)));
+                        input.after(errorList);
+                    }
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("Произошла ошибка: " + error);
+            }
+        });
+    });
+
     // Registration
     $("#registerForm").submit(function (e) {
         e.preventDefault();
@@ -40,6 +109,7 @@ $(document).ready(function () {
         $("#EMAIL").prop("disabled", false);
         $("#PHONE").prop("disabled", false);
         $("#PASSWORD").prop("disabled", false);
+        $("#PASSWORD").prop("type", "text");
         $("#PASSWORD").prop("value", "");
         $("#acc_page_edit").hide();
         $("#acc_page_save").show();

@@ -1,7 +1,7 @@
 from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from app.models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order
+from app.models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order, WarehouseImage
 from datetime import date
 
 
@@ -21,6 +21,18 @@ class Command(BaseCommand):
                     ceiling=3.5,
                     image=File(f)
                 )
+            with open("./static/img/image11.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=1,
+                    warehouse=warehouse_1,
+                    image=File(f)
+                )
+            with open("./static/img/image__11.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=2,
+                    warehouse=warehouse_1,
+                    image=File(f)
+                )
             with open("./static/img/image9.png", "rb") as f:
                 warehouse_2 = Warehouse.objects.create(
                     address=Address.objects.create(
@@ -30,6 +42,18 @@ class Command(BaseCommand):
                     advantage='Парковка',
                     temperature=18,
                     ceiling=3.5,
+                    image=File(f)
+                )
+            with open("./static/img/image9.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=1,
+                    warehouse=warehouse_2,
+                    image=File(f)
+                )
+            with open("./static/img/image__9.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=2,
+                    warehouse=warehouse_2,
                     image=File(f)
                 )
             with open("./static/img/image15.png", "rb") as f:
@@ -43,6 +67,18 @@ class Command(BaseCommand):
                     ceiling=5.5,
                     image=File(f)
                 )
+            with open("./static/img/image15.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=1,
+                    warehouse=warehouse_3,
+                    image=File(f)
+                )
+            with open("./static/img/image__15.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=2,
+                    warehouse=warehouse_3,
+                    image=File(f)
+                )
             with open("./static/img/image151.png", "rb") as f:
                 warehouse_4 = Warehouse.objects.create(
                     address=Address.objects.create(
@@ -54,6 +90,19 @@ class Command(BaseCommand):
                     ceiling=3.5,
                     image=File(f)
                 )
+            with open("./static/img/image151.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=1,
+                    warehouse=warehouse_4,
+                    image=File(f)
+                )
+            with open("./static/img/image__151.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=2,
+                    warehouse=warehouse_4,
+                    image=File(f)
+                )
+
             with open("./static/img/image16.png", "rb") as f:
                 warehouse_5 = Warehouse.objects.create(
                     address=Address.objects.create(
@@ -63,6 +112,18 @@ class Command(BaseCommand):
                     advantage='Большие боксы',
                     temperature=21,
                     ceiling=4.5,
+                    image=File(f)
+                )
+            with open("./static/img/image16.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=1,
+                    warehouse=warehouse_5,
+                    image=File(f)
+                )
+            with open("./static/img/image__16.png", "rb") as f:
+                WarehouseImage.objects.create(
+                    ordinal_number=2,
+                    warehouse=warehouse_5,
                     image=File(f)
                 )
 
@@ -255,7 +316,7 @@ class Command(BaseCommand):
                 number="№124",
                 storage=warehouse_2,
                 floor=3,
-                length=5,
+                length=1,
                 width=4,
                 height=1,
                 price=8901.00,

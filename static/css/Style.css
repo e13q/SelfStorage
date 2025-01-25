@@ -85,6 +85,13 @@ body {
 .SelfStorage_tab.active {
     color: #579586 !important;
 }
+.SelfStorage__warehouselink {
+    border-radius: 8px;
+    border: solid 2px white;
+}
+.SelfStorage__warehouselink:hover {
+    border: solid 2px #579586;
+}
 .SelfStorage__boxlink {
     border-radius: 8px;
     border: solid 2px white;

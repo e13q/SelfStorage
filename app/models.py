@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.html import format_html
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -20,7 +21,9 @@ class CustomUser(AbstractUser):
 class Client(models.Model):
     full_name = models.CharField("ФИО", max_length=200)
     user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
-    phone_number = PhoneNumberField("Номер телефона", region="RU", blank=True)
+    phone_number = PhoneNumberField(
+        "Номер телефона", region="RU", blank=True
+    )
 
     class Meta:
         verbose_name = "Клиент"
@@ -74,13 +77,6 @@ class Warehouse(models.Model):
         db_index=True,
         blank=True,
     )
-    # Дублирование с Box. Нужно-ли?
-    # price = models.DecimalField(
-    #     "Цена аренды",
-    #     max_digits=8,
-    #     decimal_places=2,
-    #     validators=[MinValueValidator(0)],
-    # )
 
     class Meta:
         verbose_name = "Склад"
@@ -90,28 +86,56 @@ class Warehouse(models.Model):
         return f"{self.address.city}"
 
 
+class WarehouseImage(models.Model):
+    ordinal_number = models.PositiveIntegerField(
+        verbose_name='Порядок картинки',
+        default=0,
+        blank=False,
+        null=False,
+        db_index=True
+    )
+    warehouse = models.ForeignKey(
+        Warehouse, related_name='other_images', on_delete=models.CASCADE
+    )
+    image = models.ImageField(
+        "Дополнительное изображение",
+        upload_to="warehouse_images/",
+        db_index=True,
+    )
+
+    class Meta:
+        verbose_name = "Дополнительное изображение склада"
+        verbose_name_plural = "Дополнительные изображения склада"
+        ordering = ['ordinal_number']
+
+    def image_preview(self):
+        if self.image:
+            return format_html(
+                '<img src="{}" style="max-width: 255px; max-height: 200px;" />',
+                self.image.url
+            )
+        return ''
+
+    def __str__(self):
+        return f"{self.ordinal_number} изображение для склада в {self.warehouse.address.city}"
+
+
 class Box(models.Model):
     number = models.CharField("Номер", max_length=20, unique=True)
     storage = models.ForeignKey(
         Warehouse, on_delete=models.PROTECT, verbose_name="Склад"
     )
     floor = models.PositiveSmallIntegerField("Этаж")
-    length = models.DecimalField(
+    length = models.FloatField(
         "Длина, м",
-        max_digits=4,
-        decimal_places=1,
         validators=[MinValueValidator(0)],
     )
-    width = models.DecimalField(
+    width = models.FloatField(
         "Ширина, м",
-        max_digits=4,
-        decimal_places=1,
         validators=[MinValueValidator(0)],
     )
-    height = models.DecimalField(
+    height = models.FloatField(
         "Высота, м",
-        max_digits=4,
-        decimal_places=1,
         validators=[MinValueValidator(0)],
     )
     price = models.DecimalField(
@@ -120,6 +144,7 @@ class Box(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)],
     )
+    volume = models.FloatField("Объем", editable=False)
     is_occupied = models.BooleanField("Занят", default=False)
 
     @property
@@ -127,32 +152,35 @@ class Box(models.Model):
         return self.length * self.width
 
     @property
-    def volume(self):
+    def calculated_volume(self):
         return self.length * self.width * self.height
+
+    def save(self, *args, **kwargs):
+        # Обновляем поле volume перед сохранением
+        self.volume = self.calculated_volume
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Бокс"
         verbose_name_plural = "Боксы"
 
     def __str__(self):
-        return f"{self.number}"
+        return f"{self.number} | {self.volume} м³ | {self.storage.address.city}, {self.storage.address.street_address}"
 
 
 class Order(models.Model):
     STATUSES = [
-        (1, "Текущий"),
-        (2, "Просрочен"),
+        (1, "Просрочен"),
+        (2, "Принят"),
         (3, "Завершен"),
     ]
-    status = models.IntegerField("Статус аренды", choices=STATUSES, default=2)
+    status = models.IntegerField("Статус записи", choices=STATUSES, default=2)
     date = models.DateField("Дата начала аренды")
     box = models.ForeignKey(Box, on_delete=models.PROTECT, verbose_name="Бокс")
     client = models.ForeignKey(
         Client, on_delete=models.PROTECT, verbose_name="Клиент"
     )
-    address = models.TextField(
-        "Адрес вывоза", max_length=200, null=True, blank=True
-    )
+    address = models.TextField("Адрес", max_length=200)
     expiration = models.DateField("Дата окончания аренды")
 
     class Meta:

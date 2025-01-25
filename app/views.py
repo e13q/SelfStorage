@@ -7,7 +7,10 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
 from phonenumbers import NumberParseException
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 
+from .forms import OrderForm
 from .models import Box, Client, Warehouse
 
 
@@ -21,11 +24,63 @@ def boxes(request):
         free_boxes=Count("box", filter=Q(box__is_occupied=False)),
         min_price_box=Min("box__price"),
     )
-
+    first_warehouse = warehouses.first()
+    boxes = Box.objects.filter(storage=first_warehouse, is_occupied=False)
+    boxes_to3 = boxes.filter(volume__gt=0, volume__lt=3, is_occupied=False)
+    boxes_to10 = boxes.filter(volume__gte=3, volume__lt=10, is_occupied=False)
+    boxes_from10 = boxes.filter(volume__gte=10, is_occupied=False)
+    form = OrderForm()
     context = {
         "warehouses": warehouses,
+        "boxes": boxes,
+        "boxes_to3": boxes_to3,
+        "boxes_to10": boxes_to10,
+        "boxes_from10": boxes_from10,
+        "form": form
     }
     return render(request, "boxes.html", context)
+
+
+def filter_boxes(request, warehouse_id):
+    warehouse = get_object_or_404(Warehouse, id=warehouse_id)
+    boxes = Box.objects.filter(storage=warehouse, is_occupied=False)
+    boxes_to3 = boxes.filter(volume__gt=0, volume__lt=3, is_occupied=False)
+    boxes_to10 = boxes.filter(volume__gte=3, volume__lt=10, is_occupied=False)
+    boxes_from10 = boxes.filter(volume__gte=10, is_occupied=False)
+    boxes_html = render_to_string(
+        'boxes_partial.html', {'boxes': boxes}
+    )
+    boxes_to3_html = render_to_string(
+        'boxes_partial.html', {'boxes': boxes_to3}
+    )
+    boxes_to10_html = render_to_string(
+        'boxes_partial.html', {'boxes': boxes_to10}
+    )
+    boxes_from10_html = render_to_string(
+        'boxes_partial.html', {'boxes': boxes_from10}
+    )
+
+    return JsonResponse({
+        'boxes_html': boxes_html,
+        'boxes_to3_html': boxes_to3_html,
+        'boxes_to10_html': boxes_to10_html,
+        'boxes_from10_html': boxes_from10_html
+    })
+
+
+def create_order(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True, 'message': 'Заказ успешно создан!'})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False, 'message': 'Неверный метод запроса'})
+
+
+def rent(request):
+    return render(request, "my-rent.html")
 
 
 def normalise_phone_number(pn):
@@ -116,14 +171,14 @@ class UserProfileView(View):
         if user.email != email:
             user.email = email
             user.username = email
-            user.save()
 
         if not user.check_password(password):
             user.set_password(password)
-            user.save()
 
-        if client.phone_number != phone:
-            client.phone_number = phone_number
+        user.save()
+
+        if client.phone_number != phone_number:
+            client.phone_number = phone
             client.save()
 
         return JsonResponse({"success": True})
