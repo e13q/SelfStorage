@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from environs import Env
+
 env = Env()
 env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -16,7 +17,7 @@ SECRET_KEY = 'django-insecure-=ubr#^&o7$3+uishz0t8yl*61(1@y9)uxp^l4@ohn*s)8rz^%l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "192.168.11.10"]
 VK_API_TOKEN = env.str("VK_TOKEN")
 
 # Application definition
@@ -74,6 +75,7 @@ DATABASES = {
 
 
 AUTH_USER_MODEL = "app.CustomUser"
+LOGIN_URL = "/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -119,3 +121,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'emails'

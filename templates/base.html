@@ -15,12 +15,20 @@
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<a class="navbar-brand" href="#">
+		<a class="navbar-brand" href="/">
 			<img src="{% static 'img/Vector.svg' %}" alt="[]">
 			<img src="{% static 'img/SelfStorage.svg' %}" alt="SelfStorage">
 		</a>
 		<div class="collapse navbar-collapse justify-content-end" id="navbar">
 			<ul class="navbar-nav">
+				<li class="nav-item d-flex align-items-center me-5">
+					<div class="d-flex justify-content-center align-items-center rounded-pill SelfStorage__bg_green me-2" style="height: 36px; width: 36px;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="white" class="bi bi-telephone-fill" viewBox="0 0 16 16">
+							<path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
+						</svg>
+					</div>
+					<b>8 (800) 000-00-00</b>
+				</li>
 				<li class="nav-item me-5">
 					<a class="nav-link SelfStorage_black" href="#">Рассчитать стоимость</a>
 				</li>
@@ -32,19 +40,11 @@
 				</li>
 				<li class="nav-item me-5">
 					{% if user.is_authenticated %}
-						<a class="SelfStorage_black" href="/profile/" style="text-decoration: none;">{{ user.email }}</a><br>
-						<a class="SelfStorage_black" href="/logout/" style="text-decoration: none;">Выйти</a>
+						<a class="SelfStorage_green" href="/profile/" style="text-decoration: none;">{% if user.client %}{{ user.client.full_name }}{% else %}{{ user.username}}{% endif %}</a><br>
+						<a class="SelfStorage_green" href="/logout/" style="text-decoration: none;">Выйти</a>
 					{% else %}
 						<a class="nav-link SelfStorage_green" href="#" data-bs-toggle="modal" data-bs-target="#SignModal">Войти</a>
 					{% endif %}
-				</li>
-				<li class="nav-item d-flex align-items-center">
-					<div class="d-flex justify-content-center align-items-center rounded-pill SelfStorage__bg_green me-2" style="height: 36px; width: 36px;">
-						<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="white" class="bi bi-telephone-fill" viewBox="0 0 16 16">
-							<path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
-						</svg>
-					</div>
-					<b>8 (800) 000-00-00</b>
 				</li>
 			</ul>
 		</div>
@@ -64,6 +64,7 @@
 				<form id="registerForm" class="d-flex flex-column align-items-center" style="max-width: 420px">
 				{% csrf_token %}
 					<h1 class="modal-title text-center fw-bold mb-3">Регистрация</h1>
+					<input type="text" required name="FULL_NAME_CREATE" class="form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="Имя">
 					<input type="email" required name="EMAIL_CREATE" class="form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="E-mail">
 					<input type="password" required name="PASSWORD_CREATE" class="form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="Пароль">
 					<input type="password" required name="PASSWORD_CONFIRM" class="form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="Подтверждение пароля">
@@ -84,7 +85,7 @@
 			</div>
 			<div class="modal-body d-flex justify-content-center align-items-center">
 				<form id="loginForm" class="d-flex flex-column align-items-center" style="max-width: 420px">
-				{% csrf_token %}				
+				{% csrf_token %}
 					<h1 class="modal-title text-center fw-bold mb-3">Вход</h1>
 					<input type="email" required name="EMAIL" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="E-mail">
 					<input type="password" required name="PASSWORD" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="Пароль">
@@ -104,10 +105,10 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body d-flex justify-content-center align-items-center">
-				<form id="forgetForm" class="d-flex flex-column align-items-center" style="max-width: 420px">
+				<form method="post" action="/password_reset/" class="d-flex flex-column align-items-center" style="max-width: 420px">
 				{% csrf_token %}
 					<h1 class="modal-title text-center fw-bold mb-3">Восстановление пароля</h1>
-					<input type="email" required name="EMAIL_FORGET" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="E-mail">
+					<input type="email" id="id_email" required name="email" class="form-control  border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="E-mail">
 					<div class="alert alert-danger" role="alert"></div>
 					<button type="submit" class="btn border-8 py-3 px-5 mt-5 mb-3 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange">Восстановить</button>
 					<span>Вспомнили пароль?  <a href="#" class="SelfStorage_orange" data-bs-toggle="modal" data-bs-target="#SignModal" data-bs-dismiss="modal" aria-label="Close">Отмена</a></span>
@@ -159,7 +160,7 @@
 			<p><a href="#" class="link-dark text-decoration-none">Правовые документы</a></p>
 			<p><a href="#" class="link-dark text-decoration-none">Контакты</a></p>
 		</div>
-		<h6 class="SelfStorage_grey text-center mt-5">© <span id="curr_year"></span> SelfStorage. Использование материалов запрещено без письменного согласия</h6>
+		<h6 class="SelfStorage_grey text-center mt-5">© <span id="curr_year" class="SelfStorage_grey"></span> SelfStorage. Использование материалов запрещено без письменного согласия</h6>
 	</div>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
