@@ -17,13 +17,16 @@
 							<h4>{{ user.client.full_name }}</h4>
 						</div>
 						<div class="col-12 col-sm-7 d-flex flex-column">
-							<form>
+							<form id="profileInfoForm">
+							{% csrf_token %}
 								<label class="fs_24 SelfStorage_green ms-2" for="EMAIL">E-mail</label>
-								<input type="email" name="EMAIL_EDIT" id="EMAIL" class="form-control fs_24 ps-2 SelfStorage__input" value="{{ user.email }}" disabled>
+								<input type="email" required name="EMAIL_EDIT" id="EMAIL" class="form-control fs_24 ps-2 SelfStorage__input" value="{{ user.email }}" disabled>
 								<label class="fs_24 SelfStorage_green ms-2" for="PHONE">Телефон</label>
-								<input type="tel" name="PHONE_EDIT" id="PHONE" class="form-control fs_24 ps-2 SelfStorage__input" value="" disabled>
+								<input type="tel" required name="PHONE_EDIT" id="PHONE" class="form-control fs_24 ps-2 SelfStorage__input" value="{{ user.client.phone_number }}" disabled>
 								<label class="fs_24 SelfStorage_green ms-2" for="PASSWORD">Пароль</label>
-								<input type="password" name="PASSWORD_EDIT" id="PASSWORD" class="form-control fs_24 ps-2 SelfStorage__input" value="111111111" disabled>
+								<input type="password" required name="PASSWORD_EDIT" id="PASSWORD" class="form-control fs_24 ps-2 SelfStorage__input" value="111111111" disabled>
+								<br>
+								<div class="alert alert-danger" role="alert"></div>
 								<button type="submit" class="btn SelfStorage_green ps-1" id="acc_page_save" style="display: none">Сохранить</button>
 								<a class="btn SelfStorage_orange ps-1" id="acc_page_edit">Редактировать</a>
 							</form>

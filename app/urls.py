@@ -7,7 +7,6 @@ app_name = "app"
 urlpatterns = [
     path("", views.index, name="index"),
     path("boxes/", views.boxes, name="boxes"),
-    path("rent/", views.rent, name="rent"),
     path(
         "register/",
         views.UserRegistrationView.as_view(),

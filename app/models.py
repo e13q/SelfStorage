@@ -21,7 +21,7 @@ class Client(models.Model):
     full_name = models.CharField("ФИО", max_length=200)
     user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
     phone_number = PhoneNumberField(
-        "Номер телефона", region="RU", unique=True, blank=True
+        "Номер телефона", region="RU", blank=True
     )
 
     class Meta:

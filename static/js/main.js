@@ -41,16 +41,16 @@ $(document).ready(function () {
         $("#PHONE").prop("disabled", false);
         $("#PASSWORD").prop("disabled", false);
         $("#PASSWORD").prop("type", "text");
+        $("#PASSWORD").prop("value", "");
         $("#acc_page_edit").hide();
         $("#acc_page_save").show();
     });
-    $("#acc_page_save").click(function(e) {
-        $("#EMAIL").prop("disabled", true);
-        $("#PHONE").prop("disabled", true);
-        $("#PASSWORD").prop("disabled", true);
-        $("#PASSWORD").prop("type", "password");
-        $("#acc_page_edit").show();
-        $("#acc_page_save").hide();
+    $("#profileInfoForm").submit(function (e) {
+        e.preventDefault();
+        var form_data = $(this).serialize();
+
+        $.post("/profile/", form_data, request_response)
+        .fail(function (xhr, status, error) { console.log(error); });
     });
     
 });
