@@ -5,7 +5,6 @@ services:
       dockerfile: Dockerfile
     environment:
       - DJANGO_SETTINGS_MODULE=self_storage.settings
-      - DJANGO_SETTINGS_MODULE=self_storage.settings
     volumes:
       - staticfiles_volume:/app/staticfiles
       - media_volume:/app/media
