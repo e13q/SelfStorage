@@ -130,7 +130,12 @@ $(document).ready(function () {
 
     $(".rentExtButton").click(function(e) {
         order_id = $(this).attr("data-order-id");
+        boxDateEnd = $(this).attr("data-box-date-end");
+        var date = new Date(boxDateEnd);
+        date.setDate(date.getDate() + 1);
+        var newBoxDateEnd = date.toISOString().split('T')[0];
         $(".RentExtModalTitle").text("Продлить аренду бокса " + $(this).attr("data-box-number") + " до");
+        $(".rentExtForm").find('[name="NEW_RENT_END_DATE"]').attr("min", newBoxDateEnd);
         $(".RentExtModal").fadeIn();
     });
 
@@ -141,8 +146,9 @@ $(document).ready(function () {
     $(".rentExtForm").submit(function (e) {
         e.preventDefault();
         var new_time = $(this).find('[name="NEW_RENT_END_DATE"]').val();
-        if (new Date(new_time).getTime() <= new Date().getTime()) {
-            $(".alert.alert-danger").show().text("Новая дата не может быть сегодня или раньше");
+        var boxDateEnd = $(".rentExtButton").attr("data-box-date-end");
+        if (new Date(new_time).getTime() <= new Date(boxDateEnd).getTime()) {
+            $(".alert.alert-danger").show().text("Новая дата должна быть после текущей даты окончания аренды");
             return false;
         }
         var form_data = {
