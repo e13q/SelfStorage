@@ -1,8 +1,14 @@
-from django import forms
-from .models import Order, Client, CustomUser, Box
-from phonenumber_field.formfields import PhoneNumberField
-from django.db import transaction
 import datetime
+
+from django import forms
+from django.db import transaction
+from django.core.mail import send_mail
+from django.contrib.auth.hashers import make_password
+from django.utils.crypto import get_random_string
+from django.conf import settings
+from phonenumber_field.formfields import PhoneNumberField
+
+from .models import Order, Client, CustomUser, Box
 
 
 class OrderForm(forms.ModelForm):
@@ -143,7 +149,7 @@ class OrderForm(forms.ModelForm):
             order_date = self.cleaned_data['order_date']
             expiration = self.cleaned_data['expiration']
 
-            user, _ = CustomUser.objects.get_or_create(email=email)
+            user, created = CustomUser.objects.get_or_create(email=email)
             client, _ = Client.objects.get_or_create(
                 user=user,
                 defaults={
@@ -160,4 +166,14 @@ class OrderForm(forms.ModelForm):
             )
             selected_box.is_occupied = True
             selected_box.save()
+            if created:
+                password = get_random_string(length=12)
+                user.password = make_password(password)
+                user.set_password(password)
+                user.save()
+                subject = 'SelfStorage| Пароль от учётной записи'
+                message = f'Здарова, {full_name}!\n\nУ тебя создана учётная запись в рамках формирования заказа {order.id}.\nИспользуй для входа:\nE-mail: {user.email}\nПароль: {password}\n\nВсего хорошего :)\n\nSelfStorage service'
+                from_email = settings.EMAIL_HOST_USER
+                recipient_list = [email]
+                send_mail(subject, message, from_email, recipient_list)
             return order
