@@ -4,3 +4,4 @@ django-phonenumber-field[phonenumbers]==8.0.0
 pillow==11.1.0
 requests~=2.32.3
 django-admin-sortable2==2.2.4
+gunicorn==23.0.0

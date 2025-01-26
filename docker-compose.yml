@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=self_storage.settings
+    volumes:
+      - staticfiles_volume:/app/staticfiles
+      - media_volume:/app/media
+
+volumes:
+  staticfiles_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/www/staticfiles/
+  media_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/www/media/

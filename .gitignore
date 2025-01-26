@@ -161,3 +161,5 @@ cython_debug/
 /warehouse_images
 /app/migrations
 /media/warehouse_images
+deploy.sh
+docker.compose.override.yml
