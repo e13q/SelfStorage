@@ -1,6 +1,7 @@
 services:
   backend:
     build:
+      context: .
       dockerfile: Dockerfile
     environment:
       - DJANGO_SETTINGS_MODULE=self_storage.settings
