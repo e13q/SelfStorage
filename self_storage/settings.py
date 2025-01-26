@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url
 
 from environs import Env
 
@@ -55,10 +56,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "self_storage.wsgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default":
+        env.str("DATABASE_URL") and dj_database_url.parse(
+            os.getenv('DATABASE_URL')
+        ) or {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
 }
 
 AUTH_USER_MODEL = "app.CustomUser"
