@@ -37,28 +37,28 @@
 				<div class="tab-pane fade" id="Rent" role="tabpanel" aria-labelledby="Rent-tab">
 					<h1 class="fw-bold SelfStorage_green mb-5">Добрый день, {{ user.client.full_name }}!</h1>
 					{% if current_orders %}
-						{% for order in current_orders %}
-							{% if order.days_to_expire > 0 and order.days_to_expire < 30 %}
-								<h4 class="SelfStorage_grey my-3">Срок Вашей аренды подходит к концу :(<br>Вы можете продлить аренду или забрать вещи до {{ order.rent_end|date:"j F Y" }} года включительно.</h4>
+						{% for curr_order in current_orders %}
+							{% if curr_order.days_to_expire > 0 and curr_order.days_to_expire < 30 %}
+								<h4 class="SelfStorage_grey my-3">Срок Вашей аренды подходит к концу :(<br>Вы можете продлить аренду или забрать вещи до {{ curr_order.order.expiration|date:"j F Y" }} года включительно.</h4>
 							{% endif %}
-							{% if order.days_to_expire < 0 %}
-								<h4 class="SelfStorage_grey my-3">Срок Вашей аренды истек :(<br>Вещи будут храниться до {{ order.days_to_add_expire|date:"j F Y" }} года включительно по повышенному тарифу, после чего в случае, если вы их так и не заберете – вы их потеряете.</h4>
+							{% if curr_order.days_to_expire < 0 %}
+								<h4 class="SelfStorage_grey my-3">Срок Вашей аренды истек :(<br>Вещи будут храниться до {{ curr_order.days_to_add_expire|date:"j F Y" }} года включительно по повышенному тарифу, после чего в случае, если вы их так и не заберете – вы их потеряете.</h4>
 							{% endif %}
 							<div class="mb-5">
 								<h4 class="SelfStorage_green">Мой склад №{{ forloop.counter }}</h4>
-								<h4>{{ order.wharehouse_address }}</h4>
+								<h4>{{ curr_order.order.box.storage.address }}</h4>
 								<h4 class="SelfStorage_green">Мой бокс</h4>
-								<h4>{{ order.box_number }}</h4>
+								<h4>{{ curr_order.order.box.number }}</h4>
 								<h4 class="SelfStorage_green">Срок аренды</h4>
-								<h4>{{ order.rent_begin|date:"d.m.Y" }} - {{ order.rent_end|date:"d.m.Y" }}</h4>
-								<div><button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_green SelfStorage__btn2_green mb-3">Продлить аренду</button></div>
+								<h4>{{ curr_order.order.date|date:"d.m.Y" }} - {{ curr_order.order.expiration|date:"d.m.Y" }}</h4>
+								<div><button id="rentExtButton" class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_green SelfStorage__btn2_green mb-3" data-box-number="{{ curr_order.order.box.number }}" data-order-id="{{ curr_order.order.id }}">Продлить аренду</button></div>
 								<div><button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">Открыть бокс</button></div>
 								<a href="#" class="SelfStorage_orange">Нужна помощь?</a>
 							</div>
 						{% endfor %}
 					{% else %}
-						<h4 class="SelfStorage_grey my-5">У вас еще нет аренды :(<br>Но вы можете арендовать свой первый бокс  по  привлекательной цене прямо сейчас</h4>
-						<div><button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">Арендовать бокс</button></div>
+						<h4 class="SelfStorage_grey my-5">У вас еще нет аренды :(<br>Но вы можете арендовать свой первый бокс по привлекательной цене прямо сейчас</h4>
+						<div><a href="/boxes/" class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">Арендовать бокс</a></div>
 						<a href="#" class="SelfStorage_orange">Нужна помощь?</a>
 					{% endif %}
 				</div>
@@ -69,16 +69,16 @@
 						{% for order in closed_orders %}
 							<div class="mb-5">
 								<h4 class="SelfStorage_green">Мой склад</h4>
-								<h4>{{ order.wharehouse_address }}</h4>
+								<h4>{{ order.box.storage.address }}</h4>
 								<h4 class="SelfStorage_green">Мой бокс</h4>
-								<h4>{{ order.box_number }}</h4>
+								<h4>{{ order.box.number }}</h4>
 								<h4 class="SelfStorage_green">Срок аренды</h4>
-								<h4>{{ order.rent_begin|date:"d.m.Y" }} - {{ order.rent_end|date:"d.m.Y" }}</h4>
+								<h4>{{ order.date|date:"d.m.Y" }} - {{ order.expiration|date:"d.m.Y" }}</h4>
 							</div>
 						{% endfor %}
 					{% else %}
-						<h4 class="SelfStorage_grey my-5">У вас еще нет аренды :(<br>Но вы можете арендовать свой первый бокс  по  привлекательной цене прямо сейчас</h4>
-						<div><button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">Арендовать бокс</button></div>
+						<h4 class="SelfStorage_grey my-5">У вас еще нет аренды :(<br>Но вы можете арендовать свой первый бокс по привлекательной цене прямо сейчас</h4>
+						<div><a href="/boxes/" class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">Арендовать бокс</a></div>
 						<a href="#" class="SelfStorage_orange">Нужна помощь?</a>
 					{% endif %}
 				</div>
@@ -86,4 +86,23 @@
 		</div>
 	</div>
 </main>
+
+<aside class="modal" id="RentExtModal">
+	<div class="modal-dialog modal-dialog-scrollable modal-fullscreen">
+		<div class="modal-content">
+			<div class="modal-header border-0">
+				<button type="button" class="btn-close" id="RentExtModalClose"></button>
+			</div>
+			<div class="modal-body d-flex justify-content-center align-items-center">
+				<form id="rentExtForm" class="d-flex flex-column align-items-center" style="max-width: 420px">
+				{% csrf_token %}
+					<h1 id="RentExtModalTitle" class="modal-title text-center fw-bold mb-3">Продлить аренду бокса</h1>
+					<input type="date" required name="NEW_RENT_END_DATE" class="form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="">
+					<div class="alert alert-danger" role="alert"></div>
+					<button type="submit" class="btn border-8 py-3 px-5 mt-5 mb-3 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange">Продлить</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</aside>
 {% endblock %}

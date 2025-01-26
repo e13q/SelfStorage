@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import phonenumbers as ph
 from django.contrib.auth import authenticate, get_user_model, login, logout
@@ -171,14 +171,7 @@ class UserProfileView(View):
 
         for order in orders:
             if order.status == 3:
-                closed_orders.append(
-                    {
-                        "wharehouse_address": str(order.box.storage.address),
-                        "box_number": order.box.number,
-                        "rent_begin": order.date,
-                        "rent_end": order.expiration,
-                    }
-                )
+                closed_orders.append(order)
             else:
                 days_to_expire = (
                     (order.expiration - date.today()).total_seconds()
@@ -186,10 +179,7 @@ class UserProfileView(View):
                 days_to_add_expire = order.expiration + timedelta(days=182)
                 curr_orders.append(
                     {
-                        "wharehouse_address": str(order.box.storage.address),
-                        "box_number": order.box.number,
-                        "rent_begin": order.date,
-                        "rent_end": order.expiration,
+                        "order": order,
                         "days_to_expire": days_to_expire,
                         "days_to_add_expire": days_to_add_expire,
                     }
@@ -199,9 +189,19 @@ class UserProfileView(View):
             "current_orders": curr_orders,
             "closed_orders": closed_orders,
         }
+
         return render(request, "profile.html", context)
 
     def post(self, request):
+        if request.POST.get("extend_rent_time"):
+            order_id = int(request.POST.get("order_id"))
+            new_rent_end_date = datetime.strptime(
+                request.POST.get("new_rent_end_date"), "%Y-%m-%d"
+            ).date()
+            Order.objects.filter(pk=order_id).update(expiration=new_rent_end_date)
+
+            return JsonResponse({"success": True})
+
         email = request.POST.get("EMAIL_EDIT")
         phone = request.POST.get("PHONE_EDIT")
         password = request.POST.get("PASSWORD_EDIT")
