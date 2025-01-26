@@ -7,6 +7,7 @@ app_name = "app"
 urlpatterns = [
     path("", views.index, name="index"),
     path("boxes/", views.boxes, name="boxes"),
+    path("faq/", views.faq, name="faq"),
     path('create-order/', views.create_order, name='create_order'),
     path(
         'filter-boxes/<int:warehouse_id>/',

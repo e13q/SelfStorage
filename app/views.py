@@ -11,11 +11,23 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 
 from .forms import OrderForm
-from .models import Box, Client, Warehouse
+from .models import Box, Client, Warehouse, FAQ, CategoryFAQ
 
 
 def index(request):
     return render(request, "index.html")
+
+
+def faq(request):
+    categories = CategoryFAQ.objects.all()
+    faq = []
+    for category in categories:
+        faq.append({category.name: FAQ.objects.filter(category=category)})
+    context = {
+        "categories": categories,
+        "faq": faq
+    }
+    return render(request, "faq.html", context)
 
 
 def boxes(request):

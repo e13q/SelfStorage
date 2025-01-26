@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from adminsortable2.admin import SortableAdminBase, SortableInlineAdminMixin
 
-from .models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order,AdvertisingLink, WarehouseImage
+from .models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order, AdvertisingLink, WarehouseImage, CategoryFAQ
 from .advertisement_short_link import shorten_link,count_clicks
 
 
@@ -17,6 +17,18 @@ class CustomUserAdmin(admin.ModelAdmin):
 class ClientAdmin(admin.ModelAdmin):
     list_display = ("full_name", "user", "phone_number")
     search_fields = ("full_name", "phone_number")
+
+
+class FAQInline(admin.StackedInline):
+    model = FAQ
+    extra = 1
+
+
+@admin.register(CategoryFAQ)
+class CategoryFAQAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    inlines = [FAQInline]
 
 
 @admin.register(FAQ)

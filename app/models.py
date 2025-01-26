@@ -33,10 +33,26 @@ class Client(models.Model):
         return self.full_name
 
 
+class CategoryFAQ(models.Model):
+    name = models.CharField("Категория", max_length=200)
+
+    class Meta:
+        verbose_name = "Категория вопросов"
+        verbose_name_plural = "Категории вопросов"
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class FAQ(models.Model):
     question = models.CharField("Вопрос", max_length=200)
     answer = models.TextField("Ответ")
-    category = models.CharField("Категория", max_length=200)
+    category = models.ForeignKey(
+        CategoryFAQ,
+        verbose_name="Категория",
+        on_delete=models.PROTECT,
+        related_name="QA"
+    )
 
     class Meta:
         verbose_name = "Ответ на вопрос"
