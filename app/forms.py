@@ -5,6 +5,7 @@ from django.db import transaction
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
 from django.utils.crypto import get_random_string
+from django.utils import timezone
 from django.conf import settings
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -96,7 +97,7 @@ class OrderForm(forms.ModelForm):
             attrs={
                 'class': 'form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey',
                 'type': 'date',
-                'placeholder': datetime.date.today().strftime('%Y-%m-%d')  # Текущая дата в формате YYYY-MM-DD
+                'min': timezone.now().strftime('%Y-%m-%d')
             }
         )
     )
@@ -110,7 +111,7 @@ class OrderForm(forms.ModelForm):
             attrs={
                 'class': 'form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey',
                 'type': 'date',
-                'placeholder': datetime.date.today().strftime('%Y-%m-%d')  # Текущая дата в формате YYYY-MM-DD
+                'min': (timezone.now()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
             }
         )
     )
@@ -123,21 +124,29 @@ class OrderForm(forms.ModelForm):
         cleaned_data = super().clean()
         order_date = cleaned_data.get("order_date")
         expiration = cleaned_data.get("expiration")
-
-        now_minus_day = datetime.datetime.now()
-        now_minus_day = now_minus_day.date()
-
-        if order_date and order_date < now_minus_day:
+        now = timezone.now().date()
+        if order_date and order_date < now:
             self.add_error("order_date", "Дата начала аренды должна быть актуальной.")
-
-        if expiration and expiration < now_minus_day:
+        if expiration and expiration < now:
             self.add_error("expiration", "Дата окончания аренды должна быть актуальной.")
-
         if order_date and expiration and expiration < order_date:
             self.add_error("expiration", "Дата окончания аренды не может быть раньше даты начала аренды.")
-
+        if order_date and expiration and expiration - datetime.timedelta(days=1) < order_date:
+            self.add_error("expiration", "Аренда не может составлять менее 1 суток.")
         return cleaned_data
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and user.is_authenticated:
+            client = Client.objects.filter(user=user).first()
+            if client:
+                if client.full_name:
+                    self.fields['full_name'].initial = client.full_name
+                if user.email:
+                    self.fields['email'].initial = user.email
+                if client.phone_number:
+                    self.fields['phone_number'].initial = client.phone_number
 
     def save(self):
         with transaction.atomic():
@@ -149,7 +158,7 @@ class OrderForm(forms.ModelForm):
             order_date = self.cleaned_data['order_date']
             expiration = self.cleaned_data['expiration']
 
-            user, created = CustomUser.objects.get_or_create(email=email)
+            user, user_created = CustomUser.objects.get_or_create(email=email)
             client, _ = Client.objects.get_or_create(
                 user=user,
                 defaults={
@@ -157,7 +166,7 @@ class OrderForm(forms.ModelForm):
                     "phone_number": phone_number
                 }
             )
-            order, _ = Order.objects.get_or_create(
+            order, order_created = Order.objects.get_or_create(
                 client=client,
                 box=selected_box,
                 date=order_date,
@@ -166,13 +175,23 @@ class OrderForm(forms.ModelForm):
             )
             selected_box.is_occupied = True
             selected_box.save()
-            if created:
+            if user_created:
+                username = get_random_string(length=8)
+                while not CustomUser.objects.filter(username=username).first() is None:
+                    username = get_random_string(length=8)
+                user.username = username
                 password = get_random_string(length=12)
                 user.password = make_password(password)
                 user.set_password(password)
                 user.save()
                 subject = 'SelfStorage| Пароль от учётной записи'
                 message = f'Здарова, {full_name}!\n\nУ тебя создана учётная запись в рамках формирования заказа {order.id}.\nИспользуй для входа:\nE-mail: {user.email}\nПароль: {password}\n\nВсего хорошего :)\n\nSelfStorage service'
+                from_email = settings.EMAIL_HOST_USER
+                recipient_list = [email]
+                send_mail(subject, message, from_email, recipient_list)
+            if order_created:
+                subject = 'SelfStorage| Сформирован заказ'
+                message = f'Приветствую, {full_name}!\n\nСформирован заказ №{order.id}:\nАдрес доставки: {order.address}\nБокс: {order.box.number}\nСклад: {order.box.storage.address.city}, {order.box.storage.address.street_address}\nДата начала аренды: {order.date}\nДата окончания аренды: {order.expiration}\n\nВсего хорошего :)\n\nSelfStorage service'
                 from_email = settings.EMAIL_HOST_USER
                 recipient_list = [email]
                 send_mail(subject, message, from_email, recipient_list)

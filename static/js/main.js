@@ -50,7 +50,8 @@ $(document).ready(function () {
 
     // Order making
     $("#orderForm").on("submit", function (e) {
-        e.preventDefault();
+        e.preventDefault();        
+        $("#loadingOverlay").show();
         let form = $(this);
         let url = form.attr("action");
         let formData = form.serialize();
@@ -59,7 +60,8 @@ $(document).ready(function () {
             type: "POST",
             url: url,
             data: formData,
-            success: function (response) {
+            success: function (response) {                
+                $("#loadingOverlay").hide();
                 if (response.success) {
                     alert(response.message);
                     form[0].reset();
@@ -73,7 +75,8 @@ $(document).ready(function () {
                     }
                 }
             },
-            error: function (xhr, status, error) {
+            error: function (xhr, status, error) {                
+                $("#loadingOverlay").hide();
                 alert("Произошла ошибка: " + error);
             }
         });

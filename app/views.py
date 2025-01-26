@@ -41,7 +41,7 @@ def boxes(request):
     boxes_to3 = boxes.filter(volume__gt=0, volume__lt=3, is_occupied=False)
     boxes_to10 = boxes.filter(volume__gte=3, volume__lt=10, is_occupied=False)
     boxes_from10 = boxes.filter(volume__gte=10, is_occupied=False)
-    form = OrderForm()
+    form = OrderForm(user=request.user)
     context = {
         "warehouses": warehouses,
         "boxes": boxes,
@@ -82,10 +82,10 @@ def filter_boxes(request, warehouse_id):
 
 def create_order(request):
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        form = OrderForm(request.POST, user=request.user)
         if form.is_valid():
             form.save()
-            return JsonResponse({'success': True, 'message': 'Заказ успешно создан!'})
+            return JsonResponse({'success': True, 'message': 'Заказ успешно создан! Проверьте почту.'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
     return JsonResponse({'success': False, 'message': 'Неверный метод запроса'})
