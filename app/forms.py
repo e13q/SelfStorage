@@ -118,7 +118,7 @@ class OrderForm(forms.ModelForm):
         order_date = cleaned_data.get("order_date")
         expiration = cleaned_data.get("expiration")
 
-        now_minus_day = datetime.datetime.now() - datetime.timedelta(days=1)
+        now_minus_day = datetime.datetime.now()
         now_minus_day = now_minus_day.date()
 
         if order_date and order_date < now_minus_day:

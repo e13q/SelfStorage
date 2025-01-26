@@ -1,30 +1,34 @@
+{% if boxes|length == 0 %}
+    <p>Отсутствуют такие боксы. Похоже, что они все заняты :(</p>    
+{% else %}
 {% for box in boxes %}
-{% if forloop.counter == 3 %}
-<div class="collapse" id="collapse-all">
-{% endif %}
-<a href="#" class="row text-decoration-none py-3 px-4 mt-5 SelfStorage__boxlink">
-    <div class="col-12 col-md-4 col-lg-3 d-flex justify-content-center align-items-center">
-        <span class="SelfStorage_green fs_24 me-2">{{box.floor}} эт.</span><span class="fs_24">{{box.number}}</span>
+    {% if forloop.counter == 3 %}
+    <div class="collapse" id="collapse-all">
+    {% endif %}
+    <a href="#" class="row text-decoration-none py-3 px-4 mt-5 SelfStorage__boxlink">
+        <div class="col-12 col-md-4 col-lg-3 d-flex justify-content-center align-items-center">
+            <span class="SelfStorage_green fs_24 me-2">{{box.floor}} эт.</span><span class="fs_24">{{box.number}}</span>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center align-items-center">
+            <span class="fs_24">{{box.volume}} м³</span>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center align-items-center">
+            <span class="fs_24">{{box.length}}х{{box.width}}х{{box.height}} м</span>
+        </div>
+        <div class="col-12 col-lg-3">
+            <button type="button" class="btn my-2 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange border-8 select-box-btn" data-id="{{ box.id }}">
+                От {{ box.price }} ₽
+            </button>
+        </div>
+    </a>
+    {% if forloop.last and forloop.counter > 2 %}
     </div>
-    <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center align-items-center">
-        <span class="fs_24">{{box.volume}} м³</span>
+    <div class="d-flex justify-content-center mt-5">
+        <button class="btn w-auto py-3 px-5 SelfStorage__bg_orange SelfStorage__btn2_orange text-white text-center fs_24 border-8" id="btn-collapse-all" data-bs-toggle="collapse" data-bs-target="#collapse-all" aria-expanded="false" aria-controls="collapse-all">Другие боксы</button>
+        <script>
+            document.getElementById('btn-collapse-all').addEventListener('click', () => document.getElementById('btn-collapse-all').classList.add('d-none'))
+        </script>
     </div>
-    <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center align-items-center">
-        <span class="fs_24">{{box.length}}х{{box.width}}х{{box.height}} м</span>
-    </div>
-    <div class="col-12 col-lg-3">
-         <button type="button" class="btn my-2 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange border-8 select-box-btn" data-id="{{ box.id }}">
-             От {{ box.price }} ₽
-         </button>
-    </div>
-</a>
-{% if forloop.last and forloop.counter > 2 %}
-</div>
-<div class="d-flex justify-content-center mt-5">
-    <button class="btn w-auto py-3 px-5 SelfStorage__bg_orange SelfStorage__btn2_orange text-white text-center fs_24 border-8" id="btn-collapse-all" data-bs-toggle="collapse" data-bs-target="#collapse-all" aria-expanded="false" aria-controls="collapse-all">Другие боксы</button>
-    <script>
-        document.getElementById('btn-collapse-all').addEventListener('click', () => document.getElementById('btn-collapse-all').classList.add('d-none'))
-    </script>
-</div>
-{% endif %}
+    {% endif %}
 {% endfor %}
+{% endif %}

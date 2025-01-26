@@ -30,13 +30,13 @@
 					<b>8 (800) 000-00-00</b>
 				</li>
 				<li class="nav-item me-5">
-					<a class="nav-link SelfStorage_black" href="#">Рассчитать стоимость</a>
+					<a class="nav-link SelfStorage_black" href="/boxes/">Рассчитать стоимость</a>
 				</li>
 				<li class="nav-item me-5">
-					<a class="nav-link SelfStorage_black" href="#">Правила хранения</a>
+					<a class="nav-link SelfStorage_black" href="/faq/">Правила хранения</a>
 				</li>
 				<li class="nav-item me-5">
-					<a class="nav-link SelfStorage_black" href="#">Арендовать бокс</a>
+					<a class="nav-link SelfStorage_black" href="/boxes/">Арендовать бокс</a>
 				</li>
 				<li class="nav-item me-5">
 					{% if user.is_authenticated %}
@@ -146,19 +146,19 @@
 	</div>
 	<div class="row">
 		<div class="col-6 col-md-4 d-flex flex-column">
-			<p><a href="#" class="link-dark text-decoration-none">Тарифы</a></p>
-			<p><a href="#" class="link-dark text-decoration-none">Рассчитать стоимость</a></p>
-			<p><a href="#" class="link-dark text-decoration-none">Арендовать бокс</a></p>
+			<p><a href="/boxes/" class="link-dark text-decoration-none">Тарифы</a></p>
+			<p><a href="/boxes/" class="link-dark text-decoration-none">Рассчитать стоимость</a></p>
+			<p><a href="/boxes/" class="link-dark text-decoration-none">Арендовать бокс</a></p>
 		</div>
 		<div class="col-6 col-md-4 d-flex flex-column">
-			<p><a href="#" class="link-dark text-decoration-none">Правила хранения</a></p>
-			<p><a href="#" class="link-dark text-decoration-none">Адреса складов</a></p>
-			<p><a href="#" class="link-dark text-decoration-none">Отзывы</a></p>
+			<p><a href="/faq/" class="link-dark text-decoration-none">Правила хранения</a></p>
+			<p><a href="/boxes/" class="link-dark text-decoration-none">Адреса складов</a></p>
+			<p><a href="/boxes/" class="link-dark text-decoration-none">Отзывы</a></p>
 		</div>
 		<div class="col-6 col-md-4 d-flex flex-column">
-			<p><a href="#" class="link-dark text-decoration-none">Политика конфиденциальности</a></p>
-			<p><a href="#" class="link-dark text-decoration-none">Правовые документы</a></p>
-			<p><a href="#" class="link-dark text-decoration-none">Контакты</a></p>
+			<p><a href="/static/documents/approval.pdf" class="link-dark text-decoration-none">Политика конфиденциальности</a></p>
+			<p><a href="/static/documents/approval.pdf" class="link-dark text-decoration-none">Правовые документы</a></p>
+			<p><a href="/index/" class="link-dark text-decoration-none">Контакты</a></p>
 		</div>
 		<h6 class="SelfStorage_grey text-center mt-5">© <span id="curr_year" class="SelfStorage_grey"></span> SelfStorage. Использование материалов запрещено без письменного согласия</h6>
 	</div>
