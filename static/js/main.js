@@ -127,18 +127,21 @@ $(document).ready(function () {
 
     // Extend order time
     var order_id;
-    $("#rentExtButton").click(function(e) {
+
+    $(".rentExtButton").click(function(e) {
         order_id = $(this).attr("data-order-id");
-        $("#RentExtModalTitle").text("Продлить аренду бокса " + $(this).attr("data-box-number") + " до");
-        $("#RentExtModal").fadeIn();
+        $(".RentExtModalTitle").text("Продлить аренду бокса " + $(this).attr("data-box-number") + " до");
+        $(".RentExtModal").fadeIn();
     });
-    $("#RentExtModalClose").click(function(e) {
-        $("#RentExtModal").fadeOut();
+
+    $(".RentExtModalClose").click(function(e) {
+        $(".RentExtModal").fadeOut();
     });
-    $("#rentExtForm").submit(function (e) {
+
+    $(".rentExtForm").submit(function (e) {
         e.preventDefault();
-        new_time = $(this).find('[name="NEW_RENT_END_DATE"]').val()
-        if( (new Date(new_time).getTime() <= new Date().getTime()) ) {
+        var new_time = $(this).find('[name="NEW_RENT_END_DATE"]').val();
+        if (new Date(new_time).getTime() <= new Date().getTime()) {
             $(".alert.alert-danger").show().text("Новая дата не может быть сегодня или раньше");
             return false;
         }
@@ -147,7 +150,7 @@ $(document).ready(function () {
             extend_rent_time: true,
             order_id: order_id,
             new_rent_end_date: new_time
-        }
+        };
 
         $.post("/profile/", form_data, request_response)
         .fail(function (xhr, status, error) { console.log(error); });
