@@ -21,9 +21,7 @@ class CustomUser(AbstractUser):
 class Client(models.Model):
     full_name = models.CharField("ФИО", max_length=200)
     user = models.OneToOneField(CustomUser, on_delete=models.PROTECT)
-    phone_number = PhoneNumberField(
-        "Номер телефона", region="RU", blank=True
-    )
+    phone_number = PhoneNumberField("Номер телефона", region="RU", blank=True)
 
     class Meta:
         verbose_name = "Клиент"
@@ -51,7 +49,7 @@ class FAQ(models.Model):
         CategoryFAQ,
         verbose_name="Категория",
         on_delete=models.PROTECT,
-        related_name="QA"
+        related_name="QA",
     )
 
     class Meta:
@@ -75,7 +73,7 @@ class Address(models.Model):
         verbose_name_plural = "Адреса"
 
     def __str__(self):
-        return f"{self.street_address}, {self.city}"
+        return f"{self.city}, {self.street_address}"
 
 
 class Warehouse(models.Model):
@@ -104,14 +102,14 @@ class Warehouse(models.Model):
 
 class WarehouseImage(models.Model):
     ordinal_number = models.PositiveIntegerField(
-        verbose_name='Порядок картинки',
+        verbose_name="Порядок картинки",
         default=0,
         blank=False,
         null=False,
-        db_index=True
+        db_index=True,
     )
     warehouse = models.ForeignKey(
-        Warehouse, related_name='other_images', on_delete=models.CASCADE
+        Warehouse, related_name="other_images", on_delete=models.CASCADE
     )
     image = models.ImageField(
         "Дополнительное изображение",
@@ -122,15 +120,15 @@ class WarehouseImage(models.Model):
     class Meta:
         verbose_name = "Дополнительное изображение склада"
         verbose_name_plural = "Дополнительные изображения склада"
-        ordering = ['ordinal_number']
+        ordering = ["ordinal_number"]
 
     def image_preview(self):
         if self.image:
             return format_html(
                 '<img src="{}" style="max-width: 255px; max-height: 200px;" />',
-                self.image.url
+                self.image.url,
             )
-        return ''
+        return ""
 
     def __str__(self):
         return f"{self.ordinal_number} изображение для склада в {self.warehouse.address.city}"
@@ -186,17 +184,17 @@ class Box(models.Model):
 
 class Order(models.Model):
     STATUSES = [
-        (1, "Просрочен"),
-        (2, "Принят"),
+        (1, "Текущий"),
+        (2, "Просрочен"),
         (3, "Завершен"),
     ]
-    status = models.IntegerField("Статус записи", choices=STATUSES, default=2)
+    status = models.IntegerField("Статус записи", choices=STATUSES, default=1)
     date = models.DateField("Дата начала аренды")
     box = models.ForeignKey(Box, on_delete=models.PROTECT, verbose_name="Бокс")
     client = models.ForeignKey(
         Client, on_delete=models.PROTECT, verbose_name="Клиент"
     )
-    address = models.TextField("Адрес", max_length=200)
+    address = models.TextField("Адрес", max_length=200, null=True, blank=True)
     expiration = models.DateField("Дата окончания аренды")
 
     class Meta:

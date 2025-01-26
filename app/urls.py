@@ -14,7 +14,6 @@ urlpatterns = [
         views.filter_boxes,
         name='filter_boxes'
     ),
-    path("rent/", views.rent, name="rent"),
     path(
         "register/",
         views.UserRegistrationView.as_view(),
