@@ -134,6 +134,7 @@ class OrderForm(forms.ModelForm):
         cleaned_data = super().clean()
         order_date = cleaned_data.get("order_date")
         expiration = cleaned_data.get("expiration")
+        email = cleaned_data.get("email")
         now = timezone.now().date()
         if order_date and order_date < now:
             self.add_error(
@@ -144,46 +145,40 @@ class OrderForm(forms.ModelForm):
                 "expiration", "Дата окончания аренды должна быть актуальной."
             )
         if order_date and expiration and expiration < order_date:
-            self.add_error(
-                "expiration",
-                "Дата окончания аренды не может быть раньше даты начала аренды.",
-            )
-        if (
-            order_date
-            and expiration
-            and expiration - datetime.timedelta(days=1) < order_date
-        ):
-            self.add_error(
-                "expiration", "Аренда не может составлять менее 1 суток."
-            )
+            self.add_error("expiration", "Дата окончания аренды не может быть раньше даты начала аренды.")
+        if order_date and expiration and expiration - datetime.timedelta(days=1) < order_date:
+            self.add_error("expiration", "Аренда не может составлять менее 1 суток.")
+
+        user = CustomUser.objects.filter(email=email).first()
+        if user and (self.user is None or self.user.is_anonymous):
+            self.add_error("email", "Для указанного email существует учётная запись. Авторизуйтесь.")
+        if user and self.user and self.user.is_authenticated and self.user.email != user.email:
+            self.add_error("email", "Для указанного email существует учётная запись. Авторизуйтесь под иной учётной записью.")
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        if user and user.is_authenticated:
-            client = Client.objects.filter(user=user).first()
+        if self.user and self.user.is_authenticated:
+            client = Client.objects.filter(user=self.user).first()
             if client:
                 if client.full_name:
-                    self.fields["full_name"].initial = client.full_name
-                if user.email:
-                    self.fields["email"].initial = user.email
+                    self.fields['full_name'].initial = client.full_name
+                if client.user.email:
+                    self.fields['email'].initial = client.user.email
                 if client.phone_number:
                     self.fields["phone_number"].initial = client.phone_number
 
     def save(self):
         with transaction.atomic():
-            full_name = self.cleaned_data["full_name"]
-            email = self.cleaned_data["email"]
-            phone_number = self.cleaned_data["phone_number"]
-            address = self.cleaned_data["address"]
-            selected_box = self.cleaned_data["selected_box"]
-            order_date = self.cleaned_data["order_date"]
-            expiration = self.cleaned_data["expiration"]
-
-            user, user_created = CustomUser.objects.get_or_create(
-                email=email, username=email
-            )
+            full_name = self.cleaned_data['full_name']
+            email = self.cleaned_data['email']
+            phone_number = self.cleaned_data['phone_number']
+            address = self.cleaned_data['address']
+            selected_box = self.cleaned_data['selected_box']
+            order_date = self.cleaned_data['order_date']
+            expiration = self.cleaned_data['expiration']
+            user, user_created = CustomUser.objects.get_or_create(email=email)
             client, _ = Client.objects.get_or_create(
                 user=user,
                 defaults={
@@ -203,8 +198,9 @@ class OrderForm(forms.ModelForm):
             if user_created:
                 username = get_random_string(length=8)
                 while (
-                    not CustomUser.objects.filter(username=username).first()
-                    is None
+                    not CustomUser.objects.filter(
+                        username=username
+                    ).first() is None
                 ):
                     username = get_random_string(length=8)
                 user.username = username
