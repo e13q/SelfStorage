@@ -57,7 +57,7 @@ WSGI_APPLICATION = "self_storage.wsgi.application"
 
 DATABASES = {
     "default":
-        env.str("DATABASE_URL") and dj_database_url.parse(
+        env.str("DATABASE_URL", None) and dj_database_url.parse(
             os.getenv('DATABASE_URL')
         ) or {
             "ENGINE": "django.db.backends.sqlite3",
