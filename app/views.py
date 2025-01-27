@@ -1,13 +1,16 @@
 from datetime import date, datetime, timedelta
 
 import phonenumbers as ph
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db.models import Count, Min, Q
 from django.db.utils import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.views import View
 from phonenumbers import NumberParseException
 
@@ -198,7 +201,35 @@ class UserProfileView(View):
             new_rent_end_date = datetime.strptime(
                 request.POST.get("new_rent_end_date"), "%Y-%m-%d"
             ).date()
-            Order.objects.filter(pk=order_id).update(expiration=new_rent_end_date)
+            Order.objects.filter(pk=order_id).update(
+                expiration=new_rent_end_date
+            )
+
+            return JsonResponse({"success": True})
+
+        if request.POST.get("open_box"):
+            order_id = int(request.POST.get("order_id"))
+            order = Order.objects.get(pk=order_id)
+
+            img_url = request.build_absolute_uri("/media/qr.png")
+            subject = f"QR-код для открытия бокса {order.box.number}"
+            html_message = f"""<p>Здравствуйте, {order.client.full_name}<br>
+Ваш QR-код для открытия бокса {order.box.number} по адресу {order.box.storage.address}.<br>
+Аренда завершена.</p>
+<p>Ждем вас снова!</p>
+<img src='{img_url}'>"""
+            send_mail(
+                subject,
+                "",
+                settings.EMAIL_HOST_USER,
+                [order.client.user.email],
+                html_message=html_message,
+            )
+
+            order.status=3
+            order.save()
+            order.box.is_occupied=False
+            order.box.save()
 
             return JsonResponse({"success": True})
 

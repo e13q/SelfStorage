@@ -51,8 +51,8 @@
 								<h4>{{ curr_order.order.box.number }}</h4>
 								<h4 class="SelfStorage_green">Срок аренды</h4>
 								<h4>{{ curr_order.order.date|date:"d.m.Y" }} - {{ curr_order.order.expiration|date:"d.m.Y" }}</h4>
-								<div><button id="rentExtButton" class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_green SelfStorage__btn2_green mb-3 rentExtButton" data-box-date-start="{{ curr_order.order.date }}" data-box-date-end="{{ curr_order.order.expiration|date:'Y-m-d' }}" data-box-number="{{ curr_order.order.box.number }}" data-order-id="{{ curr_order.order.id }}">Продлить аренду</button></div>
-								<div><button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">Открыть бокс</button></div>
+								<div><button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_green SelfStorage__btn2_green mb-3 rentExtButton" data-box-date-end="{{ curr_order.order.expiration|date:'Y-m-d' }}" data-box-number="{{ curr_order.order.box.number }}" data-order-id="{{ curr_order.order.id }}">Продлить аренду</button></div>
+								<div><button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3 openBoxButton" data-order-id="{{ curr_order.order.id }}">Открыть бокс</button></div>
 								<a href="#" class="SelfStorage_orange">Нужна помощь?</a>
 							</div>
 						{% endfor %}
@@ -87,16 +87,16 @@
 	</div>
 </main>
 
-<aside class="modal RentExtModal" id="RentExtModal">
+<aside class="modal" id="RentExtModal">
 	<div class="modal-dialog modal-dialog-scrollable modal-fullscreen">
 		<div class="modal-content">
 			<div class="modal-header border-0">
-				<button type="button" class="btn-close RentExtModalClose" id="RentExtModalClose"></button>
+				<button type="button" class="btn-close" id="RentExtModalClose"></button>
 			</div>
 			<div class="modal-body d-flex justify-content-center align-items-center">
-				<form id="rentExtForm" class="d-flex flex-column align-items-center rentExtForm" style="max-width: 420px">
+				<form id="rentExtForm" class="d-flex flex-column align-items-center" style="max-width: 420px">
 				{% csrf_token %}
-					<h1 id="RentExtModalTitle" class="modal-title text-center fw-bold mb-3 RentExtModalTitle">Продлить аренду бокса</h1>
+					<h1 id="RentExtModalTitle" class="modal-title text-center fw-bold mb-3">Продлить аренду бокса</h1>
 					<input type="date" required name="NEW_RENT_END_DATE" class="form-control border-8 mb-4 py-3 px-5 border-0 fs_24 SelfStorage__bg_lightgrey" placeholder="">
 					<div class="alert alert-danger" role="alert"></div>
 					<button type="submit" class="btn border-8 py-3 px-5 mt-5 mb-3 w-100 text-white fs_24 SelfStorage__bg_orange SelfStorage__btn2_orange">Продлить</button>

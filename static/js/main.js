@@ -126,28 +126,27 @@ $(document).ready(function () {
     });
 
     // Extend order time
-    var order_id;
+    var order_id, boxDateEnd;
 
     $(".rentExtButton").click(function(e) {
         order_id = $(this).attr("data-order-id");
         boxDateEnd = $(this).attr("data-box-date-end");
         var date = new Date(boxDateEnd);
-        date.setDate(date.getDate() + 1);
+        date.setTime(date.getTime() + 86400000);
         var newBoxDateEnd = date.toISOString().split('T')[0];
-        $(".RentExtModalTitle").text("Продлить аренду бокса " + $(this).attr("data-box-number") + " до");
-        $(".rentExtForm").find('[name="NEW_RENT_END_DATE"]').attr("min", newBoxDateEnd);
-        $(".RentExtModal").fadeIn();
+        $("#RentExtModalTitle").text("Продлить аренду бокса " + $(this).attr("data-box-number") + " до");
+        $("#rentExtForm").find('[name="NEW_RENT_END_DATE"]').attr("min", newBoxDateEnd);
+        $("#RentExtModal").fadeIn();
     });
 
-    $(".RentExtModalClose").click(function(e) {
-        $(".RentExtModal").fadeOut();
+    $("#RentExtModalClose").click(function(e) {
+        $("#RentExtModal").fadeOut();
     });
 
-    $(".rentExtForm").submit(function (e) {
+    $("#rentExtForm").submit(function (e) {
         e.preventDefault();
-        var new_time = $(this).find('[name="NEW_RENT_END_DATE"]').val();
-        var boxDateEnd = $(".rentExtButton").attr("data-box-date-end");
-        if (new Date(new_time).getTime() <= new Date(boxDateEnd).getTime()) {
+        var new_date = $(this).find('[name="NEW_RENT_END_DATE"]').val();
+        if (new Date(new_date).getTime() <= new Date(boxDateEnd).getTime() + 86400000) {
             $(".alert.alert-danger").show().text("Новая дата должна быть после текущей даты окончания аренды");
             return false;
         }
@@ -155,11 +154,30 @@ $(document).ready(function () {
             csrfmiddlewaretoken: $(this).find('[name=csrfmiddlewaretoken]').val(),
             extend_rent_time: true,
             order_id: order_id,
-            new_rent_end_date: new_time
+            new_rent_end_date: new_date
         };
 
         $.post("/profile/", form_data, request_response)
         .fail(function (xhr, status, error) { console.log(error); });
+    });
+
+    $(".openBoxButton").click(function(e) {
+        order_id = $(this).attr("data-order-id");
+
+        $.ajax({
+            url: '/profile/',
+            method: 'POST',
+            data: {
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val(),
+                open_box: true,
+                order_id: order_id,
+            },
+            beforeSend: function() {
+                return confirm("Вам на почту будет отправлен QR-код для открытия бокса.\nОткрытие бокса завершит аренду.\nСогласны продолжить?");
+             },
+            success: request_response,
+            error: function (xhr, status, error) { console.log(error); }
+          });
     });
 
 });
