@@ -44,6 +44,8 @@ class Command(BaseCommand):
                 # Последний день просрочки (180 дней)
                 if overdue_days == 180:
                     order.status = 3
+                    order.box.is_occupied = False
+                    order.box.save()
                     order.save()
                     self.send_email(
                         order.client.user.email,
@@ -62,4 +64,3 @@ class Command(BaseCommand):
             [to_email],
             fail_silently=False,
         )
-
