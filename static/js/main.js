@@ -173,10 +173,21 @@ $(document).ready(function () {
                 order_id: order_id,
             },
             beforeSend: function() {
-                return confirm("Вам на почту будет отправлен QR-код для открытия бокса.\nОткрытие бокса завершит аренду.\nСогласны продолжить?");
-             },
-            success: request_response,
-            error: function (xhr, status, error) { console.log(error); }
+                if (confirm("Вам на почту будет отправлен QR-код для открытия бокса.\nОткрытие бокса завершит аренду.\nСогласны продолжить?")) {
+                    $("#loadingOverlay").show();
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            success: function(response) {
+                request_response(response);
+                $("#loadingOverlay").hide();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+                $("#loadingOverlay").hide();
+            }
           });
     });
 

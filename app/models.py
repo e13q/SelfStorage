@@ -89,7 +89,6 @@ class Warehouse(models.Model):
         "Баннер склада",
         upload_to="warehouse_images/",
         db_index=True,
-        blank=True,
     )
 
     class Meta:

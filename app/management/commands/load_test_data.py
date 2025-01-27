@@ -1,8 +1,11 @@
+import random
 from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from app.models import CustomUser, Client, FAQ, Address, Warehouse, Box, Order, WarehouseImage, CategoryFAQ
-from datetime import date
+from datetime import date, timedelta
+from django.utils.crypto import get_random_string
+from django.utils.timezone import now
 
 
 class Command(BaseCommand):
@@ -133,6 +136,9 @@ class Command(BaseCommand):
             user2 = CustomUser.objects.create_user(
                 email="user2@example.com", password="password123", username="user2"
             )
+            user3 = CustomUser.objects.create_user(
+                email="user3@example.com", password="password123", username="VALERA"
+            )
 
             client1 = Client.objects.create(
                 full_name="Иван Иванов",
@@ -143,6 +149,11 @@ class Command(BaseCommand):
                 full_name="Петр Петров",
                 user=user2,
                 phone_number="+79162223344"
+            )
+            client3 = Client.objects.create(
+                full_name="Валерий",
+                user=user3,
+                phone_number="+79162223324"
             )
             cat1 = CategoryFAQ.objects.create(
                 name='О складах и боксах'
@@ -389,6 +400,44 @@ class Command(BaseCommand):
                 address="Где-то далеко на проспекте Ленина",
                 expiration=date(2025, 1, 12)
             )
+            today = now().date()
+            for days_left in [30, 14, 7, 3]:
+                Order.objects.create(
+                    status=1,
+                    date=today,
+                    address="На Луне",
+                    client=client3,
+                    box=Box.objects.create(
+                        number=get_random_string(6),
+                        storage=warehouse_5,
+                        floor=random.choice(range(1,3)),
+                        length=random.choice(range(1,3)),
+                        width=random.choice(range(1,3)),
+                        height=random.choice(range(1,3)),
+                        price=random.choice(range(1000,9000)),
+                        is_occupied=True
+                    ),
+                    expiration=today + timedelta(days=days_left)
+                )
+
+            for overdue_days in [1, 30, 60, 90, 120, 150, 180]:
+                Order.objects.create(
+                    status=2,
+                    date=today - timedelta(days=90),
+                    address="На Земле",
+                    client=client3,
+                    box=Box.objects.create(
+                        number=get_random_string(6),
+                        storage=warehouse_5,
+                        floor=random.choice(range(1,3)),
+                        length=random.choice(range(1,3)),
+                        width=random.choice(range(1,3)),
+                        height=random.choice(range(1,3)),
+                        price=random.choice(range(1000,9000)),
+                        is_occupied=True
+                    ),
+                    expiration=today - timedelta(days=overdue_days)
+                )
             self.stdout.write(
                 self.style.SUCCESS("Тестовые данные успешно загружены в бд")
             )
